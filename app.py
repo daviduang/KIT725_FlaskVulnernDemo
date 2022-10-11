@@ -1,4 +1,4 @@
-from crypt import methods
+from crypt import crypt, methods
 from distutils.log import error
 from sre_constants import SUCCESS
 from unicodedata import name
@@ -81,6 +81,7 @@ def register():
 # User login Page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
 
         # login form
@@ -90,30 +91,25 @@ def login():
         # create cursor
         cursor = mysql.connection.cursor()
 
+        # hashed password
+        #crypted_password = sha256_crypt.hash(password_typed)
+
         # get user
-        result = cursor.execute('SELECT * FROM users WHERE username = %s', [username] )
+        result = cursor.execute('SELECT * FROM users WHERE username = "{}" and password = "{}" '.format(username, password_typed)) 
 
-        # if user has found
+        # if there is a match
         if result > 0:
+            session['logged_in'] = True
+            session['username'] = username      
 
-            # get hashed password
-            data = cursor.fetchone()
-            password = data['password'] 
+            flash('Authentication Sucess!', 'success')
+            return redirect(url_for('dashboard'))
 
-            # check if two passwords matched
-            if sha256_crypt.verify(password_typed, password):
-                
-                session['logged_in'] = True
-                session['username'] = username      
-
-                flash('Authentication Sucess!', 'success')
-                return redirect(url_for('dashboard'))
-            else:
-                return render_template('login.html', error='Invalid Login')
         else:
+
             return render_template('login.html', error='Username Not Found')
 
-    return render_template('login.html') 
+    return render_template('login.html')
 
 # User login state confirmation(middleware), if not logged in, redirect user to login page 
 # (This is prevention for A01(url attack), delete this for A01 demo)
@@ -128,6 +124,7 @@ def is_user_login(e):
             return redirect(url_for('login'))
 
     return wrap
+
 
 # User dashboard Page
 @app.route('/dashboard')
