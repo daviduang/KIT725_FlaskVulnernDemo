@@ -135,13 +135,17 @@ def is_user_login(e):
 def dashboard():
     return render_template('dashboard.html')
 
-
 # User logout
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Log out success!', 'success')
     return redirect(url_for('login'))
+
+# User reset password
+@app.route('/passwordReset')
+def passwordReset():
+    return render_template('passwordReset.html')
 
 if __name__ == '__main__':  
 
