@@ -1,4 +1,5 @@
-from crypt import crypt, methods
+#from crypt import methods
+import hashlib
 from distutils.log import error
 from sre_constants import SUCCESS
 from unicodedata import name
@@ -14,9 +15,10 @@ from passlib.hash import sha256_crypt
 app = Flask(__name__)
 
 # MYSQL config
+app.secret_key = '12affedasafafqwe'
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_USER'] = 'root1'
+app.config['MYSQL_PASSWORD'] = 'root1'
 app.config['MYSQL_DB'] = 'flaskdemo'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # MYSQL init
@@ -33,6 +35,41 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+#Reset Password Method 1
+@app.route('/reset1', methods=['GET', 'POST'])
+def reset1():
+    
+
+    username=request.values.get('username')
+    repassword=request.values.get('password')
+    resetpass(username,repassword)
+    return render_template('reset1.html')
+
+
+    
+  
+    
+
+
+
+def resetpass(username, repassword):
+    if repassword != "":
+        # Create cursor
+        cursor = mysql.connection.cursor()
+        cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(repassword, username))
+
+            # Commit to database
+        mysql.connection.commit()
+
+            # Close cursor
+        cursor.close()
+    return redirect(url_for('dashboard'))
+
+    
+        
+
+
 
 # Articles Page
 Articles = Articles()
@@ -61,7 +98,10 @@ def register():
         name = form.name.data
         email = form.email.data 
         username = form.username.data
-        password = sha256_crypt.encrypt(str(form.password.data)) # A02: Cryptographic failure (no salt used)
+        password=form.password.data
+        #password=hashlib.sha256(form.password.data.encode('utf-8')).hexdigest()
+       
+        #password = sha256_crypt.encrypt(str(form.password.data)) # A02: Cryptographic failure (no salt used)
 
         # Create cursor
         cursor = mysql.connection.cursor()
@@ -81,35 +121,41 @@ def register():
 # User login Page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'POST':
 
         # login form
         username = request.form['username']
         password_typed = request.form['password']
-
+        
         # create cursor
         cursor = mysql.connection.cursor()
-
-        # hashed password
-        #crypted_password = sha256_crypt.hash(password_typed)
+        crypted_password=hashlib.sha256(password_typed.encode('utf-8')).hexdigest()
+       
 
         # get user
+        #result = cursor.execute('SELECT * FROM users WHERE username = %s', [username] )
         result = cursor.execute('SELECT * FROM users WHERE username = "{}" and password = "{}" '.format(username, password_typed)) 
+        print('SELECT * FROM users WHERE username = "{}" and password = "{}" '.format(username, password_typed))
 
+        # if user has found
         # if there is a match
         if result > 0:
             session['logged_in'] = True
-            session['username'] = username      
+            session['username'] = username 
+            
 
+            # check if two passwords matched
+           
             flash('Authentication Sucess!', 'success')
             return redirect(url_for('dashboard'))
-
+            
+           
         else:
+            #session['username'] = result 
+            
+            return render_template('login.html', error='username not found')
 
-            return render_template('login.html', error='Username Not Found')
-
-    return render_template('login.html')
+    return render_template('login.html') 
 
 # User login state confirmation(middleware), if not logged in, redirect user to login page 
 # (This is prevention for A01(url attack), delete this for A01 demo)
@@ -125,7 +171,6 @@ def is_user_login(e):
 
     return wrap
 
-
 # User dashboard Page
 @app.route('/dashboard')
 
@@ -135,17 +180,13 @@ def is_user_login(e):
 def dashboard():
     return render_template('dashboard.html')
 
+
 # User logout
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Log out success!', 'success')
     return redirect(url_for('login'))
-
-# User reset password
-@app.route('/passwordReset')
-def passwordReset():
-    return render_template('passwordReset.html')
 
 if __name__ == '__main__':  
 
