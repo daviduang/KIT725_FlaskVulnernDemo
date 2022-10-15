@@ -12,6 +12,10 @@ from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt 
 
+# import mail
+from flask_mail import Mail
+
+
 app = Flask(__name__)
 
 # MYSQL config
@@ -35,41 +39,6 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-#Reset Password Method 1
-@app.route('/reset1', methods=['GET', 'POST'])
-def reset1():
-    
-
-    username=request.values.get('username')
-    repassword=request.values.get('password')
-    resetpass(username,repassword)
-    return render_template('reset1.html')
-
-
-    
-  
-    
-
-
-
-def resetpass(username, repassword):
-    if repassword != "":
-        # Create cursor
-        cursor = mysql.connection.cursor()
-        cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(repassword, username))
-
-            # Commit to database
-        mysql.connection.commit()
-
-            # Close cursor
-        cursor.close()
-    return redirect(url_for('dashboard'))
-
-    
-        
-
-
 
 # Articles Page
 Articles = Articles()
@@ -187,6 +156,11 @@ def logout():
     session.clear()
     flash('Log out success!', 'success')
     return redirect(url_for('login'))
+
+# User reset password
+@app.route('/passwordReset')
+def passwordReset():
+    return render_template('passwordReset.html')
 
 if __name__ == '__main__':  
 
