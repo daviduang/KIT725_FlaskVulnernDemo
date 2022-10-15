@@ -19,10 +19,9 @@ from flask_mail import Mail
 app = Flask(__name__)
 
 # MYSQL config
-app.secret_key = '12affedasafafqwe'
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root1'
-app.config['MYSQL_PASSWORD'] = 'root1'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'flaskdemo'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # MYSQL init
