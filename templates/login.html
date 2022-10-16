@@ -4,10 +4,8 @@
     <h1>Loggin your Account</h1>
     <form method="POST" action="">
 
-
         <div class="form-group">
             <label>Username</label>
-            <p>{{session.username}} </p>
             <input type="text" name="username" class="form-control" value={{request.form.username}}>
         </div>
 
@@ -19,7 +17,5 @@
         <button type="submit" class="btn btn-primary" value="Submit">Submit</button>
 
     </form>
-    
-        
     
 {% endblock %} 

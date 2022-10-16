@@ -161,6 +161,29 @@ def logout():
 def passwordReset():
     return render_template('passwordReset.html')
 
+
+#Reset Password Method 1
+@app.route('/reset1', methods=['GET', 'POST'])
+def reset1():
+    
+    username=request.values.get('username')
+    repassword=request.values.get('password')
+    resetpass(username,repassword)
+    return render_template('reset1.html')
+
+def resetpass(username, repassword):
+    if repassword != "":
+        # Create cursor
+        cursor = mysql.connection.cursor()
+        cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(repassword, username))
+
+            # Commit to database
+        mysql.connection.commit()
+
+            # Close cursor
+        cursor.close()
+    return redirect(url_for('dashboard'))
+
 if __name__ == '__main__':  
 
     app.secret_key='secret' # secret key
