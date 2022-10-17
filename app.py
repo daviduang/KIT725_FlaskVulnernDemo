@@ -41,7 +41,10 @@ class RegisterForm(Form):
     username = StringField('Username', [validators.Length(min=1, max=50)])
     email = StringField('Email', [validators.Length(min=1, max=50)])
     password = StringField('Password', [
+    
+        # A07: Identification & Authentication Failure
         validators.Length(min=1, max=50),
+        
         validators.EqualTo('confirm', message='Passwords do not match!')
     ])
     confirm = PasswordField('Confirm Password')
@@ -53,6 +56,8 @@ def register():
         name = form.name.data
         email = form.email.data 
         username = form.username.data
+        
+        # A02: Cryptographic failure (password unencrypted)
         password = form.password.data
 
         # Create cursor
@@ -72,6 +77,8 @@ def register():
 
 # User login Page
 @app.route('/login', methods=['GET', 'POST'])
+
+# A03: Injection
 def login():
     if request.method == 'POST':
 
@@ -103,7 +110,7 @@ def login():
 
     return render_template('login.html') 
 
-# User dashboard Page
+# User dashboard Page (A01: Broken Access Control)
 @app.route('/dashboard', methods=['GET', 'POST'])
 
 def dashboard():
@@ -116,11 +123,13 @@ def logout():
     flash('Log out success!', 'success')
     return redirect(url_for('login'))
 
-# Reset Password
+# Reset Password (A04: Insecured Design)
 @app.route('/resetPassword', methods=['GET', 'POST'])
 def resetPassword():
 
+    # A04: Insecured Design
     newpassword=request.values.get('password')
+    
     resetpass(newpassword)
     return render_template('resetPassword.html')
 
