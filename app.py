@@ -103,25 +103,8 @@ def login():
 
     return render_template('login.html') 
 
-# User login state confirmation(middleware), if not logged in, redirect user to login page 
-# (This is prevention for A01(url attack), delete this for A01 demo)
-def is_user_login(e):
-    @wraps(e)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return e(*args, **kwargs)
-
-        else:
-            flash('Unauthorised Access!', 'danger')
-            return redirect(url_for('login'))
-
-    return wrap
-
 # User dashboard Page
 @app.route('/dashboard', methods=['GET', 'POST'])
-
-# add middleware to User dashboard page
-@is_user_login
 
 def dashboard():
     return render_template('dashboard.html')
