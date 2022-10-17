@@ -3,12 +3,26 @@
 {% block body %}
 
     <h1>Articles</h1>
+    <form class="d-flex" method="post" action="{{url_for('search')}}">
+        <input type="text" name="content" id="content" placeholder="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
 
-    <ul class="list-group">
+    <table class="table table-striped">
+        <thead>
+            <th>Name</th>
+            <th>Content</th>
+            <th>Author</th>             
+        </thead>
+        <tbody>   
         {% for article in articles %}
-            <li class="list-group-item">
-                <a href="articles/{{article.id}}">{{article.title}}</a>
-            </li>
+            <tr>
+                <td href="">{{article.name}}</td>
+                <td><a href="articles/{{article.id}}">Details</td>
+                <td href="">{{article.author}}</td>
+            <tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
+
 {% endblock %} 

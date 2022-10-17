@@ -15,7 +15,6 @@ from passlib.hash import sha256_crypt
 # import mail
 from flask_mail import Mail
 
-
 app = Flask(__name__)
 
 # MYSQL config
@@ -39,16 +38,6 @@ def index():
 def about():
     return render_template('about.html')
 
-# Articles Page
-Articles = Articles()
-@app.route('/articles')
-def articles():
-    return render_template('articles.html', articles = Articles)
-
-@app.route('/articles/<string:id>')
-def article(id):
-    return render_template('article.html', id=id)
-
 # User Registration Page (For Vulnern demo (A07), delete validators)
 class RegisterForm(Form):
     name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -67,9 +56,6 @@ def register():
         email = form.email.data 
         username = form.username.data
         password=form.password.data
-        #password=hashlib.sha256(form.password.data.encode('utf-8')).hexdigest()
-       
-        #password = sha256_crypt.encrypt(str(form.password.data)) # A02: Cryptographic failure (no salt used)
 
         # Create cursor
         cursor = mysql.connection.cursor()
@@ -140,14 +126,13 @@ def is_user_login(e):
     return wrap
 
 # User dashboard Page
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 
 # add middleware to User dashboard page
 @is_user_login
 
 def dashboard():
     return render_template('dashboard.html')
-
 
 # User logout
 @app.route('/logout')
@@ -161,15 +146,14 @@ def logout():
 def passwordReset():
     return render_template('passwordReset.html')
 
-
-#Reset Password Method 1
-@app.route('/reset1', methods=['GET', 'POST'])
-def reset1():
+#Reset Password
+@app.route('/resetPassword', methods=['GET', 'POST'])
+def resetPassword():
     
     username=request.values.get('username')
     repassword=request.values.get('password')
     resetpass(username,repassword)
-    return render_template('reset1.html')
+    return render_template('resetPassword.html')
 
 def resetpass(username, repassword):
     if repassword != "":
@@ -177,13 +161,55 @@ def resetpass(username, repassword):
         cursor = mysql.connection.cursor()
         cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(repassword, username))
 
-            # Commit to database
+        # Commit to database
         mysql.connection.commit()
 
-            # Close cursor
+        # Close cursor
         cursor.close()
     return redirect(url_for('dashboard'))
 
+# View all artcles for a user
+@app.route('/articles', methods=['GET', 'POST'])
+def articles():
+    cur = mysql.connection.cursor()
+    
+    sql = "select * from article"
+    cur.execute(sql)
+    articles = cur.fetchall()
+    cur.close()
+
+    return render_template('articles.html', articles=articles)
+
+# Search function in articles page
+@app.route('/search', methods=['GET', 'POST'])
+
+def search():
+    if request.method == 'POST':
+       
+        content = request.form['content'] #content for searching
+       
+        if content is None:
+
+            content = 'D'
+        else:
+            content=content
+
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT * FROM article WHERE name LIKE "%{}%"'.format(content))
+        filteredArticles = cur.fetchall()
+       
+        cur.close()
+        return render_template('articles.html',articles = filteredArticles) 
+
+# View a single article for a user
+@app.route('/articles/<string:id>')
+def article(id):
+    cur =mysql.connection.cursor()
+    cur.execute("select * from article WHERE id= %s",[id])
+    article=cur.fetchone()
+    
+    return render_template('article.html', article=article)
+    
 if __name__ == '__main__':  
 
     app.secret_key='secret' # secret key

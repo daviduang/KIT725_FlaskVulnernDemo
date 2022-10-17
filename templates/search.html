@@ -1,0 +1,34 @@
+{% extends 'layout.html' %} 
+
+{% block body %}
+
+    <h1>Articles</h1>
+    <form class="d-flex" method="post" action="{{url_for('search')}}">
+        <input type="text" name="content" id="content" placeholder="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+    <ul class="list-group">
+        <table id="customers">
+            <thead>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Author</th>             
+            </thead>
+            <tbody>   
+        {% for text in quotes %}
+            
+                <td >{{text.id}}</td>
+        
+                <td >{{text.name}}</td>
+                
+                <td><a href="article/{{text.id}}">Details</td>
+                
+                <td >{{text.author}}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </ul>
+{% endblock %} 

@@ -16,9 +16,6 @@
           <li class="nav-item">
             <a class="nav-link" href="/about">About</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/articles">Articles</a>
-          </li>
 
           <!-- Only show if the user have not logged in -->
           {% if not session.logged_in %}
@@ -33,6 +30,9 @@
           <!-- Only show if the user have logged in -->
           {% else %}
 
+          <li class="nav-item">
+            <a class="nav-link" href="/articles">Articles</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="/logout">Logout</a>
           </li>
