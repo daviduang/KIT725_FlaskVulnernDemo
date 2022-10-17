@@ -2,7 +2,9 @@
 
 {% block body %}
 
-    <h1>Articles</h1>
+<!-- Searching result Page -->
+
+    <h1>Searching Results</h1>
     <form class="d-flex" method="post" action="{{url_for('search')}}">
         <input type="text" name="content" id="content" placeholder="Search">
         <button class="btn btn-outline-success" type="submit">Search</button>

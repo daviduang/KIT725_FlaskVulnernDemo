@@ -1,6 +1,19 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <h1> Welcome! {{session.username}} </h1>
+
+<!-- User dashboard page after logged in -->
+
+    <h1> Welcome! {{session.name}} </h1>
+
+    <ul class="list-group">
+        <li class="list-group-item">
+            Username: {{session.username}}
+        </li>
+        <li class="list-group-item">
+            Email: {{session.email}}
+        </li>
+    </ul>
+
     <a class="btn-danger" href="/resetPassword">Reset password</a>
 {% endblock %} 

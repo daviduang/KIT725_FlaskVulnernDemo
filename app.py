@@ -12,9 +12,6 @@ from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt 
 
-# import mail
-from flask_mail import Mail
-
 app = Flask(__name__)
 
 # MYSQL config
@@ -56,7 +53,7 @@ def register():
         name = form.name.data
         email = form.email.data 
         username = form.username.data
-        password=form.password.data
+        password = form.password.data
 
         # Create cursor
         cursor = mysql.connection.cursor()
@@ -84,31 +81,25 @@ def login():
         
         # create cursor
         cursor = mysql.connection.cursor()
-        crypted_password=hashlib.sha256(password_typed.encode('utf-8')).hexdigest()
-       
 
         # get user
-        #result = cursor.execute('SELECT * FROM users WHERE username = %s', [username] )
         result = cursor.execute('SELECT * FROM users WHERE username = "{}" and password = "{}" '.format(username, password_typed)) 
-        print('SELECT * FROM users WHERE username = "{}" and password = "{}" '.format(username, password_typed))
 
         # if user has found
-        # if there is a match
         if result > 0:
             session['logged_in'] = True
             session['username'] = username 
-            
+
+            user = cursor.fetchall()
+            session['name'] = user[0]['name']
+            session['email'] = user[0]['email']
 
             # check if two passwords matched
-           
             flash('Authentication Sucess!', 'success')
             return redirect(url_for('dashboard'))
-            
            
         else:
-            #session['username'] = result 
-            
-            return render_template('login.html', error='username not found')
+            return render_template('login.html', error='Authentication Failed!')
 
     return render_template('login.html') 
 
@@ -142,12 +133,7 @@ def logout():
     flash('Log out success!', 'success')
     return redirect(url_for('login'))
 
-# User reset password
-@app.route('/passwordReset')
-def passwordReset():
-    return render_template('passwordReset.html')
-
-#Reset Password
+# Reset Password
 @app.route('/resetPassword', methods=['GET', 'POST'])
 def resetPassword():
 
