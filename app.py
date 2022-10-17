@@ -48,6 +48,7 @@ class RegisterForm(Form):
         validators.EqualTo('confirm', message='Passwords do not match!')
     ])
     confirm = PasswordField('Confirm Password')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
@@ -149,26 +150,32 @@ def passwordReset():
 #Reset Password
 @app.route('/resetPassword', methods=['GET', 'POST'])
 def resetPassword():
-    
-    username=request.values.get('username')
-    repassword=request.values.get('password')
-    resetpass(username,repassword)
+
+    newpassword=request.values.get('password')
+    resetpass(newpassword)
     return render_template('resetPassword.html')
 
-def resetpass(username, repassword):
-    if repassword != "":
+def resetpass(newpassword):
+
+    # if password is not empty
+    if newpassword != "":
+
+        # Get username from session
+        username = session['username']
+
         # Create cursor
         cursor = mysql.connection.cursor()
-        cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(repassword, username))
+        cursor.execute('UPDATE users SET password= "{}" where username="{}"'.format(newpassword, username))
 
         # Commit to database
         mysql.connection.commit()
 
         # Close cursor
         cursor.close()
+    flash('Password Reset Sucess!', 'success')
     return redirect(url_for('dashboard'))
 
-# View all artcles for a user
+# View all articles for a user
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
     cur = mysql.connection.cursor()
